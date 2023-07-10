@@ -57,9 +57,10 @@ def turn_off_heater():
 
 
 def inverter_guard():
-    current_grid_wattage = get_grid_wattage(login())
-    if current_grid_wattage < 2000:
-        turn_off_heater()
+    if get_heater_state == 'on':
+        current_grid_wattage = get_grid_wattage(login())
+        if current_grid_wattage == 0:
+            turn_off_heater()
 
 
 if __name__ == '__main__':
