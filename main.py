@@ -3,9 +3,40 @@ from requests import get, post
 import asyncio
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
+lux_power_base_url = 'https://af.solarcloudsystem.com/WManage/'
+lux_power_login_path = 'web/'
+lux_power_inverter_data_path = 'api/inverter/'
+
+
+
+ha_base_url = 'http://192.168.18.153:8123/'
+ha_action_path = 'api/webhook/'
+ha_state_path = 'api/states/'
+
+ha_long_lived_access_token = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiI3ODg2NzU1MmMzMmY0YjYzYjdkNmEyMjUwNmVlYzZjNSIsImlhdCI6MTY4ODgyOTkzMCwiZXhwIjoyMDA0MTg5OTMwfQ.HTaXzFFG4v8VJGGA4_OyjNseRU53v0p1KCO7FIizCKo"
+
+wa_webhooks = {
+    'turnOffHeater-chad': '-woLhqKHfe3SXezyloRyMRF5j',
+    'getHeaterState-chad': 'switch.heater_socket_1',
+    'luxPowerLogin': 'login',
+    'luxInverterData': 'getInverterRuntime?'
+}
+
+
+def build_url(action):
+    match action:
+        case 'turnOffHeater-chad':
+            return ha_base_url + ha_action_path + wa_webhooks[action]
+        case 'getHeaterState-chad':
+            return ha_base_url + ha_state_path + wa_webhooks[action]
+        case 'luxPowerLogin':
+            return lux_power_base_url + lux_power_login_path + wa_webhooks[action]
+        case 'luxInverterData':
+            return lux_power_base_url + lux_power_inverter_data_path + wa_webhooks[action]
+
 
 def login():
-    url = "https://af.solarcloudsystem.com/WManage/web/login"
+    url = build_url('luxPowerLogin')
     headers = {
         'Content-Type': 'application/x-www-form-urlencoded',
     }
@@ -23,7 +54,7 @@ def login():
 
 def get_grid_wattage(cookie_value):
     cookies = {'JSESSIONID': cookie_value}
-    url = "https://af.solarcloudsystem.com/WManage/api/inverter/getInverterRuntime?"
+    url = build_url('luxInverterData')
     headers = {
         'Content-Type': 'application/x-www-form-urlencoded'
     }
@@ -36,9 +67,9 @@ def get_grid_wattage(cookie_value):
 
 
 def get_heater_state():
-    url = "http://192.168.18.69:8123/api/states/switch.heater_socket_1"
+    url = build_url('getHeaterState-chad')
     headers = {
-        "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiI3ODg2NzU1MmMzMmY0YjYzYjdkNmEyMjUwNmVlYzZjNSIsImlhdCI6MTY4ODgyOTkzMCwiZXhwIjoyMDA0MTg5OTMwfQ.HTaXzFFG4v8VJGGA4_OyjNseRU53v0p1KCO7FIizCKo",
+        "Authorization": ha_long_lived_access_token,
         "content-type": "application/json"
     }
     response = get(url, headers=headers)
@@ -47,24 +78,24 @@ def get_heater_state():
 
 
 def turn_off_heater():
-    url = "http://192.168.18.69:8123/api/webhook/-woLhqKHfe3SXezyloRyMRF5j"
+    url = build_url('turnOffHeater-chad')
     headers = {
-        "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiI3ODg2NzU1MmMzMmY0YjYzYjdkNmEyMjUwNmVlYzZjNSIsImlhdCI6MTY4ODgyOTkzMCwiZXhwIjoyMDA0MTg5OTMwfQ.HTaXzFFG4v8VJGGA4_OyjNseRU53v0p1KCO7FIizCKo",
+        "Authorization": ha_long_lived_access_token,
     }
 
+    print('turning off the heater...')
     post_response = post(url=url, headers=headers)
-    print(post_response.text)
+    print('turning off the heater: ', post_response)
 
 
 def inverter_guard():
-    if get_heater_state == 'on':
-        if get_grid_wattage(login()) == 0:
-            turn_off_heater()
+    if get_grid_wattage(login()) == 0:
+        turn_off_heater()
 
 
 if __name__ == '__main__':
     scheduler = AsyncIOScheduler()
-    scheduler.add_job(inverter_guard, 'interval', seconds=30, max_instances=1)
+    scheduler.add_job(inverter_guard, 'interval', seconds=15, max_instances=1)
     scheduler.start()
 
     try:
@@ -73,5 +104,4 @@ if __name__ == '__main__':
         pass
     finally:
         scheduler.shutdown()
-
 
