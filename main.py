@@ -6,13 +6,13 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 lux_power_base_url = 'https://af.solarcloudsystem.com/WManage/'
 lux_power_login_path = 'web/'
 lux_power_inverter_data_path = 'api/inverter/'
-lux_power_inverter_serial_number = "2413053854"
+lux_power_inverter_serial_number = '2413053854'
 
 ha_base_url = 'http://192.168.18.153:8123/'
 ha_action_path = 'api/webhook/'
 ha_state_path = 'api/states/'
 
-ha_long_lived_access_token = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiI3ODg2NzU1MmMzMmY0YjYzYjdkNmEyMjUwNmVlYzZjNSIsImlhdCI6MTY4ODgyOTkzMCwiZXhwIjoyMDA0MTg5OTMwfQ.HTaXzFFG4v8VJGGA4_OyjNseRU53v0p1KCO7FIizCKo"
+ha_long_lived_access_token = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiI3ODg2NzU1MmMzMmY0YjYzYjdkNmEyMjUwNmVlYzZjNSIsImlhdCI6MTY4ODgyOTkzMCwiZXhwIjoyMDA0MTg5OTMwfQ.HTaXzFFG4v8VJGGA4_OyjNseRU53v0p1KCO7FIizCKo'
 
 wa_webhooks = {
     'ha-restart': '-LZ4NW6iFo6hRtiroRD9sqXVc',
@@ -53,7 +53,7 @@ def get_grid_wattage(cookie_value):
     url = build_url('luxInverterData')
     cookies = {'JSESSIONID': cookie_value}
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-    payload = {"serialNum": lux_power_inverter_serial_number}
+    payload = {'serialNum': lux_power_inverter_serial_number}
 
     post_response = post(url=url, data=payload, headers=headers, cookies=cookies)
     print('current grid usage: ', post_response.json()['pToUser'])
@@ -62,7 +62,7 @@ def get_grid_wattage(cookie_value):
 
 def ha_restart():
     url = build_url('ha-restart')
-    headers = {"Authorization": ha_long_lived_access_token}
+    headers = {'Authorization': ha_long_lived_access_token}
 
     print('restarting homeAssistant ...')
     post_response = post(url=url, headers=headers)
@@ -72,8 +72,8 @@ def ha_restart():
 def get_heater_state():
     url = build_url('getHeaterState-chad')
     headers = {
-        "Authorization": ha_long_lived_access_token,
-        "content-type": "application/json"
+        'Authorization': ha_long_lived_access_token,
+        'content-type': 'application/json'
     }
 
     response = get(url, headers=headers)
@@ -83,7 +83,7 @@ def get_heater_state():
 
 def turn_off_heater():
     url = build_url('turnOffHeater-chad')
-    headers = {"Authorization": ha_long_lived_access_token}
+    headers = {'Authorization': ha_long_lived_access_token}
 
     print('turning off the heater...')
     post_response = post(url=url, headers=headers)
