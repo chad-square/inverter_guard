@@ -15,6 +15,7 @@ ha_state_path = 'api/states/'
 ha_long_lived_access_token = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiI3ODg2NzU1MmMzMmY0YjYzYjdkNmEyMjUwNmVlYzZjNSIsImlhdCI6MTY4ODgyOTkzMCwiZXhwIjoyMDA0MTg5OTMwfQ.HTaXzFFG4v8VJGGA4_OyjNseRU53v0p1KCO7FIizCKo"
 
 wa_webhooks = {
+    'ha-restart': '-LZ4NW6iFo6hRtiroRD9sqXVc',
     'turnOffHeater-chad': '-woLhqKHfe3SXezyloRyMRF5j',
     'getHeaterState-chad': 'switch.heater_socket_1',
     'luxPowerLogin': 'login',
@@ -24,6 +25,8 @@ wa_webhooks = {
 
 def build_url(action):
     match action:
+        case 'ha-restart':
+            return ha_base_url + ha_action_path + wa_webhooks[action]
         case 'turnOffHeater-chad':
             return ha_base_url + ha_action_path + wa_webhooks[action]
         case 'getHeaterState-chad':
@@ -55,6 +58,15 @@ def get_grid_wattage(cookie_value):
     post_response = post(url=url, data=payload, headers=headers, cookies=cookies)
     print('current grid usage: ', post_response.json()['pToUser'])
     return post_response.json()['pToUser']
+
+
+def ha_restart():
+    url = build_url('ha-restart')
+    headers = {"Authorization": ha_long_lived_access_token}
+
+    print('restarting homeAssistant ...')
+    post_response = post(url=url, headers=headers)
+    print(post_response)
 
 
 def get_heater_state():
