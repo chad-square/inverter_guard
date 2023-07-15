@@ -6,8 +6,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 lux_power_base_url = 'https://af.solarcloudsystem.com/WManage/'
 lux_power_login_path = 'web/'
 lux_power_inverter_data_path = 'api/inverter/'
-
-
+lux_power_inverter_serial_number = "2413053854"
 
 ha_base_url = 'http://192.168.18.153:8123/'
 ha_action_path = 'api/webhook/'
@@ -37,13 +36,8 @@ def build_url(action):
 
 def login():
     url = build_url('luxPowerLogin')
-    headers = {
-        'Content-Type': 'application/x-www-form-urlencoded',
-    }
-    payload = {
-        'account': 'squareHome',
-        'password': 'Wilderness4'
-    }
+    headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+    payload = {'account': 'squareHome', 'password': 'Wilderness4'}
     sesh = requests.Session()
     sesh.post(url=url, data=payload, headers=headers)
     cookie_value = ''
@@ -53,14 +47,11 @@ def login():
 
 
 def get_grid_wattage(cookie_value):
-    cookies = {'JSESSIONID': cookie_value}
     url = build_url('luxInverterData')
-    headers = {
-        'Content-Type': 'application/x-www-form-urlencoded'
-    }
-    payload = {
-        "serialNum": "2413053854"
-    }
+    cookies = {'JSESSIONID': cookie_value}
+    headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+    payload = {"serialNum": lux_power_inverter_serial_number}
+
     post_response = post(url=url, data=payload, headers=headers, cookies=cookies)
     print('current grid usage: ', post_response.json()['pToUser'])
     return post_response.json()['pToUser']
@@ -72,6 +63,7 @@ def get_heater_state():
         "Authorization": ha_long_lived_access_token,
         "content-type": "application/json"
     }
+
     response = get(url, headers=headers)
     print('current heater state: ' + response.json()['state'])
     return response.json()['state']
@@ -79,9 +71,7 @@ def get_heater_state():
 
 def turn_off_heater():
     url = build_url('turnOffHeater-chad')
-    headers = {
-        "Authorization": ha_long_lived_access_token,
-    }
+    headers = {"Authorization": ha_long_lived_access_token}
 
     print('turning off the heater...')
     post_response = post(url=url, headers=headers)
