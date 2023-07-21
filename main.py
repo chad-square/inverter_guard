@@ -22,6 +22,8 @@ wa_webhooks = {
     'luxInverterData': 'getInverterRuntime?'
 }
 
+lux_cookie = ''
+
 
 def build_url(action):
     match action:
@@ -38,6 +40,8 @@ def build_url(action):
 
 
 def login():
+    print('logging in...')
+    global lux_cookie
     url = build_url('luxPowerLogin')
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
     payload = {'account': 'squareHome', 'password': 'Wilderness4'}
@@ -46,6 +50,7 @@ def login():
     cookie_value = ''
     for cook in sesh.cookies:
         cookie_value = cook.value
+        lux_cookie = cook.value
     return cookie_value
 
 
@@ -87,17 +92,21 @@ def turn_off_heater():
 
     print('turning off the heater...')
     post_response = post(url=url, headers=headers)
-    print('turning off the heater: ', post_response)
+    print(f'turning off the heater: {post_response}\n')
 
 
 def inverter_guard():
-    if get_grid_wattage(login()) == 0:
+    if len(lux_cookie) == 0:
+        print('no cookie...')
+        login()
+    if get_grid_wattage(lux_cookie) == 0:
         turn_off_heater()
 
 
 if __name__ == '__main__':
     scheduler = AsyncIOScheduler()
-    scheduler.add_job(inverter_guard, 'interval', seconds=15, max_instances=1)
+    scheduler.add_job(login, 'interval', hours=5, max_instances=1)
+    scheduler.add_job(inverter_guard, 'interval', seconds=20, max_instances=1)
     scheduler.start()
 
     try:
