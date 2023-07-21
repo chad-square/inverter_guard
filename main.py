@@ -54,6 +54,33 @@ def login():
     return cookie_value
 
 
+def refresh_inverter_data(cookie_value):
+    # https://af.solarcloudsystem.com/WManage/web/maintain/remoteTransfer/sendReadInputCommand
+    url = build_url('luxInverterData')
+    # url = build_url('luxInverterData')
+    cookies = {'JSESSIONID': cookie_value}
+    headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+    payload = {
+        'inverterSn': lux_power_inverter_serial_number,
+        'index':1
+        }
+    post_response = post(url='https://af.solarcloudsystem.com/WManage/web/maintain/remoteTransfer/sendReadInputCommand', data=payload, headers=headers, cookies=cookies)
+    print('refreshed data: ', post_response.json())
+
+    payload = {
+        'inverterSn': lux_power_inverter_serial_number,
+        'index':2
+        }
+    post_response = post(url='https://af.solarcloudsystem.com/WManage/web/maintain/remoteTransfer/sendReadInputCommand', data=payload, headers=headers, cookies=cookies)
+    print('refreshed data: ', post_response.json())
+
+    payload = {
+        'inverterSn': lux_power_inverter_serial_number,
+        'index':3
+        }
+    post_response = post(url='https://af.solarcloudsystem.com/WManage/web/maintain/remoteTransfer/sendReadInputCommand', data=payload, headers=headers, cookies=cookies)
+    print('refreshed data: ', post_response.json())
+
 def get_grid_wattage(cookie_value):
     url = build_url('luxInverterData')
     cookies = {'JSESSIONID': cookie_value}
@@ -96,9 +123,13 @@ def turn_off_heater():
 
 
 def inverter_guard():
+    print('\n')
     if len(lux_cookie) == 0:
         print('no cookie...')
         login()
+
+    refresh_inverter_data(lux_cookie)
+
     if get_grid_wattage(lux_cookie) == 0:
         turn_off_heater()
 
