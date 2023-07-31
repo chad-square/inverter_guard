@@ -42,15 +42,19 @@ def build_url(action):
 def login():
     print('logging in...')
     global lux_cookie
+
     url = build_url('luxPowerLogin')
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
     payload = {'account': 'squareHome', 'password': 'Wilderness4'}
+
     sesh = requests.Session()
     sesh.post(url=url, data=payload, headers=headers)
     cookie_value = ''
     for cook in sesh.cookies:
         cookie_value = cook.value
         lux_cookie = cook.value
+
+    refresh_inverter_data(cookie_value)
     return cookie_value
 
 
@@ -62,24 +66,43 @@ def refresh_inverter_data(cookie_value):
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
     payload = {
         'inverterSn': lux_power_inverter_serial_number,
-        'index':1
+        'index': 1
         }
-    post_response = post(url='https://af.solarcloudsystem.com/WManage/web/maintain/remoteTransfer/sendReadInputCommand', data=payload, headers=headers, cookies=cookies)
-    print('refreshed data: ', post_response.json())
+    try:
+        post_response = post(
+            url='https://af.solarcloudsystem.com/WManage/web/maintain/remoteTransfer/sendReadInputCommand',
+            data=payload, headers=headers, cookies=cookies)
+        print('refreshed data: ', post_response.json())
+    except Exception as e:
+        print(f'Exception thrown while refreshing with index: 1, {e}')
+        login()
 
-    payload = {
-        'inverterSn': lux_power_inverter_serial_number,
-        'index':2
+    try:
+        payload = {
+            'inverterSn': lux_power_inverter_serial_number,
+            'index': 2
         }
-    post_response = post(url='https://af.solarcloudsystem.com/WManage/web/maintain/remoteTransfer/sendReadInputCommand', data=payload, headers=headers, cookies=cookies)
-    print('refreshed data: ', post_response.json())
+        post_response = post(
+            url='https://af.solarcloudsystem.com/WManage/web/maintain/remoteTransfer/sendReadInputCommand',
+            data=payload, headers=headers, cookies=cookies)
+        print('refreshed data: ', post_response.json())
+    except Exception as e:
+        print(f'Exception thrown while refreshing with index: 2, {e}')
+        login()
 
-    payload = {
-        'inverterSn': lux_power_inverter_serial_number,
-        'index':3
+    try:
+        payload = {
+            'inverterSn': lux_power_inverter_serial_number,
+            'index': 3
         }
-    post_response = post(url='https://af.solarcloudsystem.com/WManage/web/maintain/remoteTransfer/sendReadInputCommand', data=payload, headers=headers, cookies=cookies)
-    print('refreshed data: ', post_response.json())
+        post_response = post(
+            url='https://af.solarcloudsystem.com/WManage/web/maintain/remoteTransfer/sendReadInputCommand',
+            data=payload, headers=headers, cookies=cookies)
+        print('refreshed data: ', post_response.json())
+    except Exception as e:
+        print(f'Exception thrown while refreshing with index: 3, {e}')
+        login()
+
 
 def get_grid_wattage(cookie_value):
     url = build_url('luxInverterData')
@@ -87,9 +110,14 @@ def get_grid_wattage(cookie_value):
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
     payload = {'serialNum': lux_power_inverter_serial_number}
 
-    post_response = post(url=url, data=payload, headers=headers, cookies=cookies)
-    print('current grid usage: ', post_response.json()['pToUser'])
-    return post_response.json()['pToUser']
+    try:
+        post_response = post(url=url, data=payload, headers=headers, cookies=cookies)
+        print('current grid usage: ', post_response.json()['pToUser'])
+        return post_response.json()['pToUser']
+    except Exception as e:
+        print(f'Exception thrown while getting grid wattage, {e}')
+        fresh_cookie_value = login()
+        get_grid_wattage(fresh_cookie_value)
 
 
 def ha_restart():
