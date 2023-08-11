@@ -113,7 +113,8 @@ def get_grid_wattage(cookie_value):
     try:
         post_response = post(url=url, data=payload, headers=headers, cookies=cookies)
         print('current grid usage: ', post_response.json()['pToUser'])
-        return post_response.json()['pToUser']
+        print('current solar generated: ', post_response.json()['ppv'])
+        return {'grid': post_response.json()['pToUser'], 'solar': post_response.json()['ppv']}
     except Exception as e:
         print(f'Exception thrown while getting grid wattage, {e}')
         fresh_cookie_value = login()
@@ -157,8 +158,9 @@ def inverter_guard():
         login()
 
     refresh_inverter_data(lux_cookie)
+    consumption = get_grid_wattage(lux_cookie)
 
-    if get_grid_wattage(lux_cookie) == 0:
+    if consumption['grid'] == 0 | consumption['solar'] == 0:
         turn_off_heater()
 
 
