@@ -160,7 +160,7 @@ def inverter_guard():
     refresh_inverter_data(lux_cookie)
     consumption = get_grid_wattage(lux_cookie)
 
-    if consumption['grid'] == 0 | consumption['solar'] == 0:
+    if consumption['grid'] == 0 and consumption['solar'] == 0:
         turn_off_heater()
 
 
