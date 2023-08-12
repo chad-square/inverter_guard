@@ -166,7 +166,7 @@ def inverter_guard():
     consumption = get_grid_wattage(lux_cookie)
 
     # if consumption['grid'] == 0 and consumption['solar'] == 0:
-    if consumption['batterySOC'] >= 87:     # if lower than 90, then battery in use
+    if consumption['batterySOC'] <= 87:     # if lower than 90, then battery in use
         turn_off_heater()
 
 
