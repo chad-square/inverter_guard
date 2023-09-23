@@ -1,9 +1,9 @@
 import requests
 from requests import post
 
-from inverterData import InverterData
-from HomeAssistantProperties import HomeAssistantProperties
-from luxpower_properties import LuxPowerProperties
+from model.inverterData import InverterData
+from model.HomeAssistantProperties import HomeAssistantProperties
+from model.luxpower_properties import LuxPowerProperties
 
 
 class Guard:
