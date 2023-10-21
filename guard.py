@@ -123,6 +123,9 @@ class Guard:
 
         try:
             post_response = post(url=url, data=payload, headers=headers, cookies=cookies)
+            if post_response.json()['success'] is False and post_response.json()['msgCode'] == 151:
+                print(post_response.json())
+                os.kill(os.getpid(), signal.SIGUSR1)
             return InverterData(post_response.json()['pToUser'], post_response.json()['ppv'],
                                 post_response.json()['soc'], post_response.json()['peps'], post_response.json()['pinv'])
         except Exception as e:
