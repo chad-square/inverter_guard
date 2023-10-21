@@ -1,3 +1,8 @@
+import os
+import signal
+import threading
+
+import sys
 import requests
 from requests import post
 
@@ -62,7 +67,8 @@ class Guard:
 
         sesh = requests.Session()
         sesh.post(url=url, data=payload, headers=headers)
-        self.lux_cookie = sesh.cookies.get('JSESSIONID')
+        with threading.Lock():
+            self.lux_cookie = sesh.cookies.get('JSESSIONID')
 
     def refresh_inverter_data(self) -> None:
         print('refresh_inverter_data...')
