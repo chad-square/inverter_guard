@@ -12,7 +12,7 @@ if __name__ == '__main__':
     inverterGuard = Guard(config)
 
     scheduler = AsyncIOScheduler()
-    scheduler.add_job(inverterGuard.login, 'interval', hours=5, max_instances=1)
+    scheduler.add_job(inverterGuard.login, 'interval', seconds=60, max_instances=1)
     scheduler.add_job(inverterGuard.run_guard, 'interval', seconds=20, max_instances=1)
     scheduler.start()
 

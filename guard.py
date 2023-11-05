@@ -83,7 +83,6 @@ class Guard:
             }
 
             post(url=url, data=payload, headers=headers, cookies=cookies)
-            print('refresh_inverter_data...')
         except Exception as e:
             print(f'Exception thrown while refreshing with index: 1, {e}')
             self.login()
@@ -96,7 +95,6 @@ class Guard:
             }
 
             post(url=url, data=payload, headers=headers, cookies=cookies)
-            print('refresh_inverter_data...')
         except Exception as e:
             print(f'Exception thrown while refreshing with index: 2, {e}')
             self.login()
@@ -109,7 +107,6 @@ class Guard:
             }
 
             post(url=url, data=payload, headers=headers, cookies=cookies)
-            print('refresh_inverter_data...')
         except Exception as e:
             print(f'Exception thrown while refreshing with index: 3, {e}')
             self.login()
